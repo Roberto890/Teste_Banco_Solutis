@@ -3,7 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/PROGRAMACAO TOP/Kotlin/AndroidStudioWorkspace/Teste_Banco_Solutis/app/src/main/res/drawable-xhdpi/statement_background.xml" value="0.3402777777777778" />
         <entry key="..\:/PROGRAMACAO TOP/Kotlin/AndroidStudioWorkspace/Teste_Banco_Solutis/app/src/main/res/layout/activity_login.xml" value="0.1824074074074074" />
+        <entry key="..\:/PROGRAMACAO TOP/Kotlin/AndroidStudioWorkspace/Teste_Banco_Solutis/app/src/main/res/layout/activity_splash.xml" value="0.33" />
         <entry key="..\:/PROGRAMACAO TOP/Kotlin/AndroidStudioWorkspace/Teste_Banco_Solutis/app/src/main/res/layout/header_statement.xml" value="0.1699074074074074" />
         <entry key="..\:/PROGRAMACAO TOP/Kotlin/AndroidStudioWorkspace/Teste_Banco_Solutis/app/src/main/res/layout/header_statment.xml" value="0.16944444444444445" />
       </map>
