@@ -33,7 +33,7 @@
     <style name="ButtonColor" parent="ThemeOverlay.AppCompat">
         <item name="colorPrimary">#0175e2</item>
         <item name="textAllCaps">false</item>
-        <item name="android:textSize">18dp</item>
+        <item name="android:textSize">18sp</item>
     </style>
 
 </resources>

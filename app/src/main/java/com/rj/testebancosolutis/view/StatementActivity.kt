@@ -42,12 +42,14 @@ class StatementActivity : AppCompatActivity(), View.OnClickListener {
 
         loadData()
         loadStatement()
+        verifyFingerprint(false)
 
         val recycler = findViewById<RecyclerView>(R.id.recyler_statement)
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = mAdapter
 
         statementBinding.include.imageLogout.setOnClickListener(this)
+        statementBinding.include.imageFingerPrint.setOnClickListener(this)
         statementBinding.swipeRefresh.setOnRefreshListener {
             mAdapter.clear()
             loadStatement()
@@ -73,8 +75,8 @@ class StatementActivity : AppCompatActivity(), View.OnClickListener {
 
 
     override fun onClick(v: View) {
-        if (v.id == R.id.image_logout){
-            var alertDialog = AlertDialog.Builder(this)
+        if (v.id == statementBinding.include.imageLogout.id){
+            val alertDialog = AlertDialog.Builder(this)
             alertDialog.setTitle("Saindo...")
             alertDialog.setIcon(R.drawable.ic_baseline_exit_to_app)
             alertDialog.setMessage("Realmente fazer o logout?")
@@ -88,6 +90,10 @@ class StatementActivity : AppCompatActivity(), View.OnClickListener {
             alertShow.getButton(BUTTON_POSITIVE).setTextColor(getColor(R.color.blue))
             alertShow.getButton(BUTTON_NEGATIVE).setTextColor(getColor(R.color.blue))
             alertShow.show()
+        }
+
+        if (v.id == statementBinding.include.imageFingerPrint.id){
+            verifyFingerprint(true)
         }
     }
 
@@ -111,6 +117,28 @@ class StatementActivity : AppCompatActivity(), View.OnClickListener {
         SecurityPreferences(this).remove(StatementsConstants.USER.USER_NAME)
         SecurityPreferences(this).remove(StatementsConstants.USER.USER_CPF)
         SecurityPreferences(this).remove(StatementsConstants.USER.USER_BALANCE)
+        if (SecurityPreferences(this).get(StatementsConstants.FINGERPRINT.USER_FINGERPRINT) != "1"){
+            SecurityPreferences(this).remove(StatementsConstants.SHARED.USER_PASSWORD)
+        }
+    }
+
+    private fun verifyFingerprint(verify: Boolean) {
+        if (SecurityPreferences(this).get(StatementsConstants.FINGERPRINT.USER_FINGERPRINT) == "" || verify){
+            val alertDialog = AlertDialog.Builder(this)
+            alertDialog.setTitle("Autentificação Digital")
+            alertDialog.setIcon(R.drawable.id_fingerprint)
+            alertDialog.setMessage("Deseja fazer login utilizando a sua digital?")
+            alertDialog.setPositiveButton("Sim", DialogInterface.OnClickListener { _, _ ->
+                SecurityPreferences(this).store(StatementsConstants.FINGERPRINT.USER_FINGERPRINT, "1")
+            })
+            alertDialog.setNegativeButton("Não", DialogInterface.OnClickListener { _, _ ->
+                SecurityPreferences(this).store(StatementsConstants.FINGERPRINT.USER_FINGERPRINT, "0")
+            })
+            val alertShow = alertDialog.show()
+            alertShow.getButton(BUTTON_POSITIVE).setTextColor(getColor(R.color.blue))
+            alertShow.getButton(BUTTON_NEGATIVE).setTextColor(getColor(R.color.blue))
+            alertShow.show()
+        }
     }
 
 }
