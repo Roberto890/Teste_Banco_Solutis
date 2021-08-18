@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
+import androidx.appcompat.app.AppCompatDelegate
 import com.rj.testebancosolutis.databinding.ActivitySplashBinding
 
 class SplashActivity : AppCompatActivity() {
@@ -17,6 +18,8 @@ class SplashActivity : AppCompatActivity() {
         binding = ActivitySplashBinding.inflate(LayoutInflater.from(this))
         val view = binding.root
         setContentView(view)
+
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
 
 

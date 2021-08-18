@@ -50,11 +50,13 @@ class LoginViewModel(application: Application): AndroidViewModel(application) {
                         mSecurityPreferences.store(StatementsConstants.USER.USER_BALANCE, model.balance.toString())
                         mSecurityPreferences.store(StatementsConstants.USER.USER_TOKEN, model.token)
                         mSecurityPreferences.store(StatementsConstants.SHARED.USER_LOGIN, userModel.username)
-                        val chars = ('a'..'Z') + ('A'..'Z') + ('0'..'9')
-                        val secretKey = List(32) { chars.random() }.joinToString("")
-                        mSecurityPreferences.store(StatementsConstants.SHARED.USER_SECRET_KEY, secretKey)
-                        val passwordCrypto =  ChCrypto.aesEncrypt(userModel.password, secretKey)
-                        mSecurityPreferences.store(StatementsConstants.SHARED.USER_PASSWORD, passwordCrypto)
+                        if (mSecurityPreferences.get(StatementsConstants.FINGERPRINT.USER_FINGERPRINT) == "1"){
+                            val chars = ('a'..'Z') + ('A'..'Z') + ('0'..'9')
+                            val secretKey = List(32) { chars.random() }.joinToString("")
+                            mSecurityPreferences.store(StatementsConstants.SHARED.USER_SECRET_KEY, secretKey)
+                            val passwordCrypto =  ChCrypto.aesEncrypt(userModel.password, secretKey)
+                            mSecurityPreferences.store(StatementsConstants.SHARED.USER_PASSWORD, passwordCrypto)
+                        }
 
 
                         mLogin.value = 1

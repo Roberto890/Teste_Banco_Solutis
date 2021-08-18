@@ -1,5 +1,6 @@
 package com.rj.testebancosolutis.view
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.text.method.PasswordTransformationMethod
@@ -7,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.biometric.BiometricPrompt
@@ -38,8 +40,6 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         val view = binding.root
         setContentView(view)
 
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-
         mViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
 
         binding.loginPassword.transformationMethod = PasswordTransformationMethod.getInstance()
@@ -48,9 +48,26 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
         mSecurityPreferences = SecurityPreferences(this)
 
+        verifySwitchFingerprint()
+
         cacheLogin()
 
         observe()
+
+    }
+
+    private fun verifySwitchFingerprint() {
+        binding.saveBiometry.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked){
+                verifyFingerprint()
+            }else{
+                SecurityPreferences(this).store(StatementsConstants.FINGERPRINT.USER_FINGERPRINT, "0")
+            }
+        }
+        if (SecurityPreferences(this).get(StatementsConstants.FINGERPRINT.USER_FINGERPRINT) != "1"
+            || SecurityPreferences(this).get(StatementsConstants.SHARED.USER_PASSWORD) == ""){
+            binding.saveBiometry.isChecked = false
+        }
 
     }
 
@@ -104,6 +121,24 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         mViewModel.doLogin(userModel)
     }
 
+    private fun verifyFingerprint() {
+        val alertDialog = AlertDialog.Builder(this)
+        alertDialog.setTitle("Autentificação Digital")
+        alertDialog.setIcon(R.drawable.id_fingerprint)
+        alertDialog.setMessage("Realmente deseja salvar sua senha?")
+        alertDialog.setPositiveButton("Sim", DialogInterface.OnClickListener { _, _ ->
+            SecurityPreferences(this).store(StatementsConstants.FINGERPRINT.USER_FINGERPRINT, "1")
+        })
+        alertDialog.setNegativeButton("Não", DialogInterface.OnClickListener { _, _ ->
+            SecurityPreferences(this).store(StatementsConstants.FINGERPRINT.USER_FINGERPRINT, "0")
+            binding.saveBiometry.isChecked = false
+        })
+        val alertShow = alertDialog.show()
+        alertShow.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(getColor(R.color.blue))
+        alertShow.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(getColor(R.color.blue))
+        alertShow.show()
+    }
+
     private fun showAuthentication() {
         val executor: Executor = ContextCompat.getMainExecutor(this)
         val biometricPrompt = BiometricPrompt(this@LoginActivity, executor, object : BiometricPrompt.AuthenticationCallback(){
@@ -138,5 +173,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
         biometricPrompt.authenticate(info)
     }
+
+
 
 }
