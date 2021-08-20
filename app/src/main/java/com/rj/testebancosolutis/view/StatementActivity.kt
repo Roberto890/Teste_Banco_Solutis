@@ -73,8 +73,8 @@ class StatementActivity : AppCompatActivity(), View.OnClickListener {
 
 
     override fun onClick(v: View) {
-        if (v.id == R.id.image_logout){
-            var alertDialog = AlertDialog.Builder(this)
+        if (v.id == statementBinding.include.imageLogout.id){
+            val alertDialog = AlertDialog.Builder(this)
             alertDialog.setTitle("Saindo...")
             alertDialog.setIcon(R.drawable.ic_baseline_exit_to_app)
             alertDialog.setMessage("Realmente fazer o logout?")
@@ -111,7 +111,12 @@ class StatementActivity : AppCompatActivity(), View.OnClickListener {
         SecurityPreferences(this).remove(StatementsConstants.USER.USER_NAME)
         SecurityPreferences(this).remove(StatementsConstants.USER.USER_CPF)
         SecurityPreferences(this).remove(StatementsConstants.USER.USER_BALANCE)
+        if (SecurityPreferences(this).get(StatementsConstants.FINGERPRINT.USER_FINGERPRINT) != "1"){
+            SecurityPreferences(this).remove(StatementsConstants.SHARED.USER_PASSWORD)
+        }
     }
+
+
 
 }
 

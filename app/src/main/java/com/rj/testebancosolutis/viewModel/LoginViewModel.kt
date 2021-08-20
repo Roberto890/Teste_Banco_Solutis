@@ -12,6 +12,10 @@ import com.rj.testebancosolutis.model.LoginModel
 import com.rj.testebancosolutis.model.UserModel
 import com.rj.testebancosolutis.repository.StatementRepository
 import com.rj.testebancosolutis.repository.local.SecurityPreferences
+import com.rj.testebancosolutis.utils.ChCrypto
+import com.rj.testebancosolutis.utils.FingerprintHelper
+import javax.crypto.SecretKey
+import javax.crypto.SecretKeyFactory
 
 class LoginViewModel(application: Application): AndroidViewModel(application) {
 
@@ -21,28 +25,39 @@ class LoginViewModel(application: Application): AndroidViewModel(application) {
     private val mLogin = MutableLiveData<Int>()
     var login: LiveData<Int> = mLogin
 
+    private val mFingerprint = MutableLiveData<Int>()
+    var fingerprint: LiveData<Int> = mFingerprint
+
     private val mLastLogin = MutableLiveData<String>()
     var lastLogin: LiveData<String> = mLastLogin
 
 
-    fun doLogin(UserModel: UserModel) {
+    fun doLogin(userModel: UserModel) {
 
         if(mStatementRepository.isConnectionAvailable(getApplication())){
-            val emailLogin = Patterns.EMAIL_ADDRESS.matcher(UserModel.username).matches()
-            val upperCase = UserModel.password.contains(Regex("[A-Z]"))
-            val specialCharacter = UserModel.password.contains(Regex("[@#$%^/&+=]"))
-            val alphaNumeric = UserModel.password.contains(Regex("[a-zA-Z0-9]"))
+            val emailLogin = Patterns.EMAIL_ADDRESS.matcher(userModel.username).matches()
+            val upperCase = userModel.password.contains(Regex("[A-Z]"))
+            val specialCharacter = userModel.password.contains(Regex("[@#$%^/&+=]"))
+            val alphaNumeric = userModel.password.contains(Regex("[a-zA-Z0-9]"))
             if (!emailLogin or !specialCharacter or !alphaNumeric){
                 mLogin.value = 0
 
             }else{
-                mStatementRepository.login(UserModel, object : APIListener<LoginModel> {
+                mStatementRepository.login(userModel, object : APIListener<LoginModel> {
                     override fun onSuccess(model: LoginModel) {
                         mSecurityPreferences.store(StatementsConstants.USER.USER_NAME, model.name)
                         mSecurityPreferences.store(StatementsConstants.USER.USER_CPF, model.cpf)
                         mSecurityPreferences.store(StatementsConstants.USER.USER_BALANCE, model.balance.toString())
                         mSecurityPreferences.store(StatementsConstants.USER.USER_TOKEN, model.token)
-                        mSecurityPreferences.store(StatementsConstants.SHARED.USER_LOGIN, UserModel.username)
+                        mSecurityPreferences.store(StatementsConstants.SHARED.USER_LOGIN, userModel.username)
+                        if (mSecurityPreferences.get(StatementsConstants.FINGERPRINT.USER_FINGERPRINT) == "1"){
+                            val chars = ('a'..'Z') + ('A'..'Z') + ('0'..'9')
+                            val secretKey = List(32) { chars.random() }.joinToString("")
+                            mSecurityPreferences.store(StatementsConstants.SHARED.USER_SECRET_KEY, secretKey)
+                            val passwordCrypto =  ChCrypto.aesEncrypt(userModel.password, secretKey)
+                            mSecurityPreferences.store(StatementsConstants.SHARED.USER_PASSWORD, passwordCrypto)
+                        }
+
 
                         mLogin.value = 1
                     }
@@ -61,6 +76,10 @@ class LoginViewModel(application: Application): AndroidViewModel(application) {
 
     fun cacheLogin() {
         mLastLogin.value = mSecurityPreferences.get(StatementsConstants.SHARED.USER_LOGIN)
+        val fingerPrintVerification = mSecurityPreferences.get(StatementsConstants.FINGERPRINT.USER_FINGERPRINT)
+        if (FingerprintHelper.isAuthenticationAvailable(getApplication()) && fingerPrintVerification == "1"){
+            mFingerprint.value = fingerPrintVerification.toInt()
+        }
     }
 
 }
